@@ -1,0 +1,20 @@
+#Example of model training for 1DU 
+
+#Train on nine batches/epochs of simulations
+
+for i in range(1, 10):
+
+    #Image preprocessing before training - filter non-polymorphic sites, crop images to fit 198x198 dimentions & flip pixel colours
+    
+    file_sim = ImaFile(simulations_folder='/path/to/simulations' + str(i), nr_samples=198, model_name='Marth-3epoch-CEU')
+    gene_sim = file_sim.read_simulations(parameter_name='selection_coeff_hetero', max_nrepl=10000)
+    gene_sim.filter_freq(0.01)
+    gene_sim.crop(198)
+    gene_sim.convert(flip=True)
+    gene_sim.subset(get_index_random(gene_sim))
+    gene_sim.targets = to_binary(gene_sim.targets)
+
+    #Training validation split ratio of 9:1 & tensorboard callbacks to monitor training and validation accuracy/loss graphs
+    
+    model.fit(gene_sim.data, gene_sim.targets, batch_size=32, epochs=1, verbose=1, validation_split=0.10, callbacks=[tensorboard])
+
